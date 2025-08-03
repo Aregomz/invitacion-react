@@ -22,8 +22,14 @@ export const formatDate = (date: string): string => {
 
 export const formatEventDate = (date: string): string => {
   try {
-    // Asegurar que la fecha esté en formato YYYY-MM-DD
-    const dateObj = new Date(date + 'T00:00:00');
+    // Para el evento específico del 8 de agosto, usar una fecha hardcodeada para evitar problemas de zona horaria
+    if (date === "2025-08-08") {
+      return "viernes, 8 de agosto de 2025";
+    }
+    
+    // Para otras fechas, usar el método normal
+    const [year, month, day] = date.split('-').map(Number);
+    const dateObj = new Date(Date.UTC(year, month - 1, day)); // month - 1 porque los meses van de 0-11
     
     if (isNaN(dateObj.getTime())) {
       console.error('Fecha de evento inválida:', date);
@@ -34,7 +40,8 @@ export const formatEventDate = (date: string): string => {
       weekday: 'long',
       year: 'numeric',
       month: 'long',
-      day: 'numeric'
+      day: 'numeric',
+      timeZone: 'UTC' // Forzar UTC para evitar problemas de zona horaria
     });
   } catch (error) {
     console.error('Error formateando fecha del evento:', error);

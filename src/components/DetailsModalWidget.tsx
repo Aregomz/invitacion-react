@@ -277,7 +277,13 @@ export const DetailsModalWidget: React.FC = () => {
                   <div className="glass-effect rounded-xl p-4">
                     <div className="text-2xl mb-2">📅</div>
                     <h4 className="text-gold font-semibold mb-1">Fecha</h4>
-                    <p className="text-white/90 text-sm">{formatEventDate(partyDetails.date)}</p>
+                    <p className="text-white/90 text-sm">
+                      {(() => {
+                        const formattedDate = formatEventDate(partyDetails.date);
+                        console.log('Fecha original:', partyDetails.date, 'Fecha formateada:', formattedDate);
+                        return formattedDate;
+                      })()}
+                    </p>
                   </div>
                   
                   <div className="glass-effect rounded-xl p-4">
