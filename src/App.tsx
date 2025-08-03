@@ -6,6 +6,7 @@ import { PartyDetailsWidget } from './components/PartyDetailsWidget';
 import { RequirementsWidget } from './components/RequirementsWidget';
 import { RSVPWidget } from './components/RSVPWidget';
 import { DetailsModalWidget } from './components/DetailsModalWidget';
+import { ServerStatus } from './components/ServerStatus';
 
 function App() {
   return (
@@ -51,6 +52,9 @@ function App() {
       
       {/* Modal */}
       <DetailsModalWidget />
+      
+      {/* Server Status Indicator */}
+      <ServerStatus />
     </div>
   );
 }

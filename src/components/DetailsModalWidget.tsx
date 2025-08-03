@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useInvitationStore } from '../stores/invitationStore';
 import { formatDate } from '../utils/dateUtils';
 import html2canvas from 'html2canvas';
+import { apiService, type RSVPData } from '../services/api';
 
 interface FormData {
   name: string;
@@ -21,6 +22,8 @@ export const DetailsModalWidget: React.FC = () => {
   });
   const [isConfirmed, setIsConfirmed] = useState(false);
   const [isCapturing, setIsCapturing] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string>('');
   const detailsRef = useRef<HTMLDivElement>(null);
 
   const validateName = (name: string): string => {
@@ -38,6 +41,7 @@ export const DetailsModalWidget: React.FC = () => {
 
   const handleInputChange = (field: keyof FormData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+    setSubmitError(''); // Limpiar errores al escribir
     
     // Validar en tiempo real
     if (field === 'name') {
@@ -47,7 +51,7 @@ export const DetailsModalWidget: React.FC = () => {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     // Validar todos los campos
@@ -59,11 +63,38 @@ export const DetailsModalWidget: React.FC = () => {
       phone: phoneError
     });
 
-    // Si no hay errores, mostrar detalles
     if (!nameError && !phoneError) {
-      console.log('RSVP submitted:', formData);
-      setIsConfirmed(true);
-      setRSVPSubmitted(true);
+      setIsSubmitting(true);
+      setSubmitError('');
+
+      try {
+        // Enviar datos al backend
+        const response = await apiService.submitRSVP({
+          name: formData.name.trim(),
+          phone: formData.phone.replace(/\s/g, '')
+        });
+
+        console.log('RSVP submitted successfully:', response);
+        setIsConfirmed(true);
+        setRSVPSubmitted(true);
+      } catch (error) {
+        console.error('Error submitting RSVP:', error);
+        
+        // Manejar diferentes tipos de errores
+        if (error instanceof Error) {
+          if (error.message.includes('409')) {
+            setSubmitError('Este número de teléfono ya está registrado');
+          } else if (error.message.includes('400')) {
+            setSubmitError('Datos inválidos. Por favor verifica la información');
+          } else {
+            setSubmitError('Error al enviar la confirmación. Por favor intenta de nuevo');
+          }
+        } else {
+          setSubmitError('Error inesperado. Por favor intenta de nuevo');
+        }
+      } finally {
+        setIsSubmitting(false);
+      }
     }
   };
 
@@ -72,6 +103,7 @@ export const DetailsModalWidget: React.FC = () => {
     setIsConfirmed(false);
     setFormData({ name: '', phone: '' });
     setErrors({ name: '', phone: '' });
+    setSubmitError('');
   };
 
   const captureScreenshot = async () => {
@@ -142,6 +174,7 @@ export const DetailsModalWidget: React.FC = () => {
                         errors.name ? 'border-red-500' : 'border-gold/30 focus:border-gold'
                       }`}
                       placeholder="Tu nombre completo"
+                      disabled={isSubmitting}
                     />
                     {errors.name && (
                       <p className="text-red-400 text-sm mt-1">{errors.name}</p>
@@ -161,11 +194,18 @@ export const DetailsModalWidget: React.FC = () => {
                         errors.phone ? 'border-red-500' : 'border-gold/30 focus:border-gold'
                       }`}
                       placeholder="10 dígitos (ej: 5512345678)"
+                      disabled={isSubmitting}
                     />
                     {errors.phone && (
                       <p className="text-red-400 text-sm mt-1">{errors.phone}</p>
                     )}
                   </div>
+
+                  {submitError && (
+                    <div className="bg-red-500/20 border border-red-500/30 rounded-lg p-3">
+                      <p className="text-red-400 text-sm">{submitError}</p>
+                    </div>
+                  )}
 
                   <div className="flex gap-4 pt-4">
                     <motion.button
@@ -173,7 +213,8 @@ export const DetailsModalWidget: React.FC = () => {
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                       onClick={handleClose}
-                      className="flex-1 px-6 py-3 border border-gold/30 text-gold rounded-lg hover:bg-gold/10 transition-colors"
+                      disabled={isSubmitting}
+                      className="flex-1 px-6 py-3 border border-gold/30 text-gold rounded-lg hover:bg-gold/10 transition-colors disabled:opacity-50"
                     >
                       Cancelar
                     </motion.button>
@@ -181,9 +222,10 @@ export const DetailsModalWidget: React.FC = () => {
                       type="submit"
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
-                      className="flex-1 px-6 py-3 gold-gradient text-black font-bold rounded-lg"
+                      disabled={isSubmitting}
+                      className="flex-1 px-6 py-3 gold-gradient text-black font-bold rounded-lg disabled:opacity-50"
                     >
-                      Confirmar
+                      {isSubmitting ? 'Enviando...' : 'Confirmar'}
                     </motion.button>
                   </div>
                 </form>
