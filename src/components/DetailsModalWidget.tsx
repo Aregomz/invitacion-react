@@ -2,7 +2,6 @@ import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useInvitationStore } from '../stores/invitationStore';
 import { formatEventDate } from '../utils/dateUtils';
-import html2canvas from 'html2canvas';
 import { apiService } from '../services/api';
 
 interface FormData {
