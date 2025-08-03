@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useInvitationStore } from '../stores/invitationStore';
-import { formatDate } from '../utils/dateUtils';
+import { formatEventDate } from '../utils/dateUtils';
 import html2canvas from 'html2canvas';
 import { apiService } from '../services/api';
 
@@ -24,6 +24,7 @@ export const DetailsModalWidget: React.FC = () => {
   const [isCapturing, setIsCapturing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string>('');
+  const [captureSuccess, setCaptureSuccess] = useState<string>('');
   const detailsRef = useRef<HTMLDivElement>(null);
 
   const validateName = (name: string): string => {
@@ -104,28 +105,57 @@ export const DetailsModalWidget: React.FC = () => {
     setFormData({ name: '', phone: '' });
     setErrors({ name: '', phone: '' });
     setSubmitError('');
+    setCaptureSuccess('');
   };
 
   const captureScreenshot = async () => {
-    if (!detailsRef.current) return;
+    if (!detailsRef.current) {
+      console.error('No se encontró la referencia de los detalles');
+      return;
+    }
     
     setIsCapturing(true);
+    setCaptureSuccess('');
+    
     try {
+      console.log('Iniciando captura de screenshot...');
+      
       const canvas = await html2canvas(detailsRef.current, {
         backgroundColor: '#000000',
         scale: 2,
         useCORS: true,
         allowTaint: true,
-        logging: false
+        logging: true, // Habilitar logs para debugging
+        width: detailsRef.current.offsetWidth,
+        height: detailsRef.current.offsetHeight
       });
+      
+      console.log('Canvas creado exitosamente');
       
       // Crear un enlace para descargar la imagen
       const link = document.createElement('a');
-      link.download = `detalles-despedida-${partyDetails.date}.png`;
-      link.href = canvas.toDataURL();
+      const fileName = `detalles-despedida-${partyDetails.date}.png`;
+      link.download = fileName;
+      link.href = canvas.toDataURL('image/png');
+      
+      console.log('Descargando imagen:', fileName);
+      
+      // Simular click en el enlace
+      document.body.appendChild(link);
       link.click();
+      document.body.removeChild(link);
+      
+      console.log('Screenshot descargado exitosamente');
+      setCaptureSuccess('¡Imagen guardada exitosamente!');
+      
+      // Limpiar mensaje de éxito después de 3 segundos
+      setTimeout(() => {
+        setCaptureSuccess('');
+      }, 3000);
+      
     } catch (error) {
       console.error('Error al capturar screenshot:', error);
+      alert('Error al guardar la imagen. Por favor intenta de nuevo.');
     } finally {
       setIsCapturing(false);
     }
@@ -247,7 +277,7 @@ export const DetailsModalWidget: React.FC = () => {
                   <div className="glass-effect rounded-xl p-4">
                     <div className="text-2xl mb-2">📅</div>
                     <h4 className="text-gold font-semibold mb-1">Fecha</h4>
-                    <p className="text-white/90 text-sm">{formatDate(partyDetails.date)}</p>
+                    <p className="text-white/90 text-sm">{formatEventDate(partyDetails.date)}</p>
                   </div>
                   
                   <div className="glass-effect rounded-xl p-4">
@@ -256,6 +286,12 @@ export const DetailsModalWidget: React.FC = () => {
                     <p className="text-white/90 text-sm">{partyDetails.time}</p>
                   </div>
                 </div>
+                
+                {captureSuccess && (
+                  <div className="bg-green-500/20 border border-green-500/30 rounded-lg p-3 mb-4">
+                    <p className="text-green-400 text-sm">{captureSuccess}</p>
+                  </div>
+                )}
                 
                 <div className="flex gap-4">
                   <motion.button
