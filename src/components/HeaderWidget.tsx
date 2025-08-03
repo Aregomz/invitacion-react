@@ -44,7 +44,7 @@ export const HeaderWidget: React.FC = () => {
           transition={{ duration: 1, delay: 0.5, ease: "easeOut" }}
           className="max-w-2xl mx-auto"
         >
-          <div className="flex flex-col md:flex-row items-center justify-center gap-6 text-gold-dark">
+          <div className="flex flex-col md:flex-row items-center justify-center gap-6 text-gold-dark mb-8">
             <div className="flex items-center gap-2">
               <span className="text-2xl">📅</span>
               <span className="font-semibold">{partyDetails.date}</span>
@@ -54,6 +54,38 @@ export const HeaderWidget: React.FC = () => {
               <span className="font-semibold">{partyDetails.time}</span>
             </div>
           </div>
+        </motion.div>
+        
+        {/* Leyenda con enlace de scroll */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 1, ease: "easeOut" }}
+          className="text-center"
+        >
+          <motion.button
+            onClick={() => {
+              const rsvpSection = document.getElementById('rsvp-section');
+              if (rsvpSection) {
+                rsvpSection.scrollIntoView({ 
+                  behavior: 'smooth',
+                  block: 'start'
+                });
+              }
+            }}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="inline-flex items-center gap-2 px-6 py-3 bg-gold/10 border border-gold/30 rounded-full text-gold font-semibold hover:bg-gold/20 transition-all duration-300 group"
+          >
+            <span>Confirma tu asistencia aquí</span>
+            <motion.span
+              animate={{ y: [0, -3, 0] }}
+              transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+              className="text-xl group-hover:scale-110 transition-transform"
+            >
+              ↓
+            </motion.span>
+          </motion.button>
         </motion.div>
       </motion.div>
     </div>

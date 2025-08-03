@@ -1,6 +1,7 @@
 
 import { motion } from 'framer-motion';
 import { HeaderWidget } from './components/HeaderWidget';
+import { VideoWidget } from './components/VideoWidget';
 import { CountdownWidget } from './components/CountdownWidget';
 import { PartyDetailsWidget } from './components/PartyDetailsWidget';
 import { RequirementsWidget } from './components/RequirementsWidget';
@@ -13,6 +14,20 @@ function App() {
     <div className="min-h-screen bg-black">
       {/* Header Section */}
       <HeaderWidget />
+      
+      {/* Video Section */}
+      <section className="py-20">
+        <VideoWidget 
+          videoUrl="/videos/despedida-video.mp4"
+          posterUrl="/videos/despedida-poster.jpg"
+          title="Mira al Eli de la Suerte"
+          description=""
+          showControls={true}
+          autoPlay={false}
+          muted={true}
+          loop={false}
+        />
+      </section>
       
       {/* Countdown Section */}
       <section className="py-20">
@@ -30,7 +45,7 @@ function App() {
       </section>
       
       {/* RSVP Section */}
-      <section className="py-20">
+      <section id="rsvp-section" className="py-20">
         <RSVPWidget />
       </section>
       
