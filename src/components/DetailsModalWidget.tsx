@@ -120,23 +120,82 @@ export const DetailsModalWidget: React.FC = () => {
     try {
       console.log('Iniciando captura de screenshot...');
       
-      // Configuración más simple y robusta para html2canvas
-      const canvas = await html2canvas(detailsRef.current, {
-        backgroundColor: '#000000',
-        scale: 1, // Reducir scale para evitar problemas de memoria
-        useCORS: false, // Deshabilitar CORS para evitar problemas
-        allowTaint: false, // Deshabilitar taint para evitar problemas
-        logging: false, // Deshabilitar logs para evitar spam
-        width: detailsRef.current.offsetWidth,
-        height: detailsRef.current.offsetHeight,
-        imageTimeout: 0, // Sin timeout para imágenes
-        removeContainer: true, // Remover contenedor temporal
-        foreignObjectRendering: false // Deshabilitar para mejor compatibilidad
-      });
+      // Crear un canvas manual con los datos del evento
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      
+      if (!ctx) {
+        throw new Error('No se pudo obtener el contexto del canvas');
+      }
+      
+      // Configurar dimensiones del canvas
+      canvas.width = 400;
+      canvas.height = 300;
+      
+      // Fondo negro
+      ctx.fillStyle = '#000000';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      // Configurar estilos de texto
+      ctx.fillStyle = '#FFD700'; // Dorado
+      ctx.font = 'bold 24px Arial, sans-serif';
+      ctx.textAlign = 'center';
+      
+      // Título
+      ctx.fillText('Detalles del Evento', canvas.width / 2, 40);
+      
+      // Línea decorativa
+      ctx.strokeStyle = '#FFD700';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(50, 60);
+      ctx.lineTo(canvas.width - 50, 60);
+      ctx.stroke();
+      
+      // Configurar texto para detalles
+      ctx.font = '16px Arial, sans-serif';
+      ctx.textAlign = 'left';
+      ctx.fillStyle = '#FFFFFF';
+      
+      let yPosition = 100;
+      const lineHeight = 30;
+      
+      // Dirección
+      ctx.fillStyle = '#FFD700';
+      ctx.font = 'bold 18px Arial, sans-serif';
+      ctx.fillText('📍 Dirección:', 30, yPosition);
+      ctx.fillStyle = '#FFFFFF';
+      ctx.font = '16px Arial, sans-serif';
+      ctx.fillText(partyDetails.location, 30, yPosition + 20);
+      
+      yPosition += lineHeight + 20;
+      
+      // Fecha
+      ctx.fillStyle = '#FFD700';
+      ctx.font = 'bold 18px Arial, sans-serif';
+      ctx.fillText('📅 Fecha:', 30, yPosition);
+      ctx.fillStyle = '#FFFFFF';
+      ctx.font = '16px Arial, sans-serif';
+      ctx.fillText(formatEventDate(partyDetails.date), 30, yPosition + 20);
+      
+      yPosition += lineHeight + 20;
+      
+      // Hora
+      ctx.fillStyle = '#FFD700';
+      ctx.font = 'bold 18px Arial, sans-serif';
+      ctx.fillText('🕐 Hora:', 30, yPosition);
+      ctx.fillStyle = '#FFFFFF';
+      ctx.font = '16px Arial, sans-serif';
+      ctx.fillText(partyDetails.time, 30, yPosition + 20);
+      
+      // Borde dorado
+      ctx.strokeStyle = '#FFD700';
+      ctx.lineWidth = 3;
+      ctx.strokeRect(10, 10, canvas.width - 20, canvas.height - 20);
       
       console.log('Canvas creado exitosamente');
       
-      // Método alternativo de descarga más robusto
+      // Método de descarga
       try {
         // Intentar método moderno con Blob
         canvas.toBlob((blob) => {
