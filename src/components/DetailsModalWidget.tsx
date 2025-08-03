@@ -120,42 +120,99 @@ export const DetailsModalWidget: React.FC = () => {
     try {
       console.log('Iniciando captura de screenshot...');
       
+      // Configuración más simple y robusta para html2canvas
       const canvas = await html2canvas(detailsRef.current, {
         backgroundColor: '#000000',
-        scale: 2,
-        useCORS: true,
-        allowTaint: true,
-        logging: true, // Habilitar logs para debugging
+        scale: 1, // Reducir scale para evitar problemas de memoria
+        useCORS: false, // Deshabilitar CORS para evitar problemas
+        allowTaint: false, // Deshabilitar taint para evitar problemas
+        logging: false, // Deshabilitar logs para evitar spam
         width: detailsRef.current.offsetWidth,
-        height: detailsRef.current.offsetHeight
+        height: detailsRef.current.offsetHeight,
+        imageTimeout: 0, // Sin timeout para imágenes
+        removeContainer: true, // Remover contenedor temporal
+        foreignObjectRendering: false // Deshabilitar para mejor compatibilidad
       });
       
       console.log('Canvas creado exitosamente');
       
-      // Crear un enlace para descargar la imagen
-      const link = document.createElement('a');
-      const fileName = `detalles-despedida-${partyDetails.date}.png`;
-      link.download = fileName;
-      link.href = canvas.toDataURL('image/png');
-      
-      console.log('Descargando imagen:', fileName);
-      
-      // Simular click en el enlace
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      
-      console.log('Screenshot descargado exitosamente');
-      setCaptureSuccess('¡Imagen guardada exitosamente!');
-      
-      // Limpiar mensaje de éxito después de 3 segundos
-      setTimeout(() => {
-        setCaptureSuccess('');
-      }, 3000);
+      // Método alternativo de descarga más robusto
+      try {
+        // Intentar método moderno con Blob
+        canvas.toBlob((blob) => {
+          if (blob) {
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            const fileName = `detalles-despedida-${partyDetails.date}.png`;
+            link.download = fileName;
+            link.href = url;
+            
+            console.log('Descargando imagen:', fileName);
+            
+            document.body.appendChild(link);
+            link.click();
+            
+            // Limpiar después de un delay
+            setTimeout(() => {
+              document.body.removeChild(link);
+              URL.revokeObjectURL(url);
+            }, 100);
+            
+            console.log('Screenshot descargado exitosamente');
+            setCaptureSuccess('¡Imagen guardada exitosamente!');
+            
+            // Limpiar mensaje de éxito después de 3 segundos
+            setTimeout(() => {
+              setCaptureSuccess('');
+            }, 3000);
+          } else {
+            throw new Error('No se pudo crear el blob');
+          }
+        }, 'image/png', 0.9);
+        
+      } catch (blobError) {
+        console.log('Método Blob falló, intentando método tradicional...');
+        
+        // Método tradicional como fallback
+        const link = document.createElement('a');
+        const fileName = `detalles-despedida-${partyDetails.date}.png`;
+        link.download = fileName;
+        link.href = canvas.toDataURL('image/png', 0.9);
+        
+        console.log('Descargando imagen:', fileName);
+        
+        document.body.appendChild(link);
+        link.click();
+        
+        setTimeout(() => {
+          document.body.removeChild(link);
+        }, 100);
+        
+        console.log('Screenshot descargado exitosamente');
+        setCaptureSuccess('¡Imagen guardada exitosamente!');
+        
+        setTimeout(() => {
+          setCaptureSuccess('');
+        }, 3000);
+      }
       
     } catch (error) {
       console.error('Error al capturar screenshot:', error);
-      alert('Error al guardar la imagen. Por favor intenta de nuevo.');
+      
+      // Mensaje de error más específico
+      let errorMessage = 'Error al guardar la imagen. Por favor intenta de nuevo.';
+      
+      if (error instanceof Error) {
+        if (error.message.includes('canvas')) {
+          errorMessage = 'Error al generar la imagen. Intenta de nuevo.';
+        } else if (error.message.includes('download')) {
+          errorMessage = 'Error al descargar. Verifica que tu navegador permita descargas.';
+        } else if (error.message.includes('blob')) {
+          errorMessage = 'Error al procesar la imagen. Intenta de nuevo.';
+        }
+      }
+      
+      alert(errorMessage);
     } finally {
       setIsCapturing(false);
     }
