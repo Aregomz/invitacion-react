@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useInvitationStore } from '../stores/invitationStore';
 import { formatDate } from '../utils/dateUtils';
 import html2canvas from 'html2canvas';
-import { apiService, type RSVPData } from '../services/api';
+import { apiService } from '../services/api';
 
 interface FormData {
   name: string;
