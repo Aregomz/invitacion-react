@@ -65,7 +65,25 @@ export const CountdownWidget: React.FC = () => {
         <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4 font-elegant">
           CUENTA REGRESIVA
         </h2>
-        <div className="w-24 h-1 bg-gradient-to-r from-gold to-gold-dark mx-auto rounded-full"></div>
+        <div className="w-24 h-1 bg-gradient-to-r from-gold to-gold-dark mx-auto rounded-full mb-8"></div>
+        
+        {/* Leyenda sobre confirmar asistencia */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.5 }}
+          className="max-w-2xl mx-auto mb-8"
+        >
+          <div className="glass-effect rounded-xl p-6 border border-gold/20">
+            <div className="text-2xl mb-3">💡</div>
+            <p className="text-white/90 text-lg md:text-xl leading-relaxed">
+              <span className="text-gold font-semibold">Confirma tu asistencia</span> para conocer todos los detalles del evento
+            </p>
+            <p className="text-white/70 text-sm md:text-base mt-2">
+              Dirección, hora exacta y más información disponible después de confirmar
+            </p>
+          </div>
+        </motion.div>
       </motion.div>
       
       <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
