@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { useInvitationStore } from '../stores/invitationStore';
-import { formatDate } from '../utils/dateUtils';
+import { formatEventDate } from '../utils/dateUtils';
 
 export const PartyDetailsWidget: React.FC = () => {
   const { partyDetails, rsvpSubmitted } = useInvitationStore();
@@ -20,7 +20,7 @@ export const PartyDetailsWidget: React.FC = () => {
     {
       icon: "📅",
       title: "Fecha",
-      value: formatDate(partyDetails.date)
+      value: formatEventDate(partyDetails.date)
     },
     {
       icon: "🕐",
