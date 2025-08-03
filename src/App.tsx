@@ -44,7 +44,7 @@ function App() {
         <div className="max-w-4xl mx-auto px-6">
           <div className="w-24 h-1 bg-gradient-to-r from-gold to-gold-dark mx-auto rounded-full mb-8"></div>
           <p className="text-white/60 text-sm">
-            © 2024 Fiesta de Fin de Año. Todos los derechos reservados.
+            © 2025 Despedida. Todos los derechos reservados.
           </p>
         </div>
       </motion.footer>
